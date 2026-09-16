@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your account — Ebook Canvas</title>
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container row">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span class="brand-name">Ebook Canvas</span></a>
+    <div class="nav-links"><a href="index.html">Library</a><a href="contact.html">Premium</a></div>
+    <div class="nav-actions" id="nav-actions"></div>
+  </div>
+</nav>
+
+<div class="container" style="max-width:640px; padding-top:50px; padding-bottom:80px;">
+  <h1 style="font-size:2rem;">Your account</h1>
+  <p id="loading-msg">Loading your details…</p>
+
+  <div id="account-wrap" style="display:none;">
+
+    <div class="form-card" style="margin-bottom:22px;">
+      <h3>Profile</h3>
+      <div class="field">
+        <label>Name</label>
+        <input id="display-name" type="text" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input id="email-view" type="text" disabled />
+        <div class="field-hint">To change your email, contact support.</div>
+      </div>
+      <button class="btn btn-primary" id="save-profile">Save changes</button>
+      <a class="btn btn-ghost" href="forgot-password.html" style="margin-left:8px;">Change password</a>
+    </div>
+
+    <div class="form-card" style="margin-bottom:22px;">
+      <h3>Subscription</h3>
+      <p id="sub-status" style="max-width:none;"></p>
+      <a class="btn btn-lilac" href="contact.html">Manage subscription</a>
+    </div>
+
+    <div class="form-card">
+      <h3>Account status</h3>
+      <p style="max-width:none;">Deactivating hides your profile and pauses your access. It does not delete your data — you can reactivate any time by logging back in.</p>
+      <button class="btn btn-ghost" id="deactivate-btn">Deactivate account</button>
+
+      <hr style="border:none; border-top:1px solid var(--line); margin:22px 0;" />
+
+      <h3>Delete your account</h3>
+      <p style="max-width:none;">We don't delete accounts automatically. Send a confirmation request below and our team will verify and permanently delete your data.</p>
+      <button class="btn btn-danger" id="delete-request-btn">Request account deletion</button>
+    </div>
+
+  </div>
+
+  <div class="form-card" id="reactivate-wrap" style="display:none; text-align:center;">
+    <h3>Your account is deactivated</h3>
+    <p>Welcome back — want to pick up where you left off?</p>
+    <button class="btn btn-primary" id="reactivate-btn">Reactivate my account</button>
+  </div>
+</div>
+
+<script type="module">
+  import { watchAuth, logOut } from "./js/auth.js";
+  import { db } from "./js/firebase-config.js";
+  import { doc, updateDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { toast } from "./js/main.js";
+
+  let currentUser = null, currentProfile = null;
+
+  watchAuth((user, profile) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    currentUser = user; currentProfile = profile;
+    document.getElementById("loading-msg").style.display = "none";
+
+    if (profile?.accountStatus === "deactivated") {
+      document.getElementById("reactivate-wrap").style.display = "block";
+      return;
+    }
+
+    document.getElementById("account-wrap").style.display = "block";
+    document.getElementById("display-name").value = profile?.displayName || "";
+    document.getElementById("email-view").value = user.email || "";
+
+    const sub = document.getElementById("sub-status");
+    if (profile?.isPremium) {
+      sub.innerHTML = `<span class="pill pill-gold">Premium</span> &nbsp;You have full access — no ads, offline reading, and audiobooks.`;
+    } else {
+      sub.innerHTML = `<span class="pill">Free</span> &nbsp;You're on the free plan. Upgrade any time to remove ads and unlock audiobooks.`;
+    }
+  });
+
+  document.getElementById("save-profile").addEventListener("click", async () => {
+    const name = document.getElementById("display-name").value.trim();
+    await updateDoc(doc(db, "users", currentUser.uid), { displayName: name });
+    toast("Profile updated");
+  });
+
+  document.getElementById("deactivate-btn").addEventListener("click", async () => {
+    if (!confirm("Deactivate your account? You can reactivate any time by logging back in.")) return;
+    await updateDoc(doc(db, "users", currentUser.uid), { accountStatus: "deactivated" });
+    await logOut();
+    toast("Account deactivated");
+    setTimeout(() => (window.location.href = "index.html"), 800);
+  });
+
+  document.getElementById("reactivate-btn").addEventListener("click", async () => {
+    await updateDoc(doc(db, "users", currentUser.uid), { accountStatus: "active" });
+    toast("Welcome back!");
+    setTimeout(() => window.location.reload(), 600);
+  });
+
+  document.getElementById("delete-request-btn").addEventListener("click", async () => {
+    if (!confirm("This sends a deletion request to our team for confirmation. Continue?")) return;
+    await addDoc(collection(db, "accountRequests"), {
+      uid: currentUser.uid,
+      email: currentUser.email,
+      type: "delete",
+      status: "pending",
+      createdAt: serverTimestamp()
+    });
+    toast("Request sent — we'll email you to confirm.");
+  });
+</script>
+</body>
+</html>

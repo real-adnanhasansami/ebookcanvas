@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// ============================================================
+// Ebook Canvas — Storage security rules
+// Anyone signed in can read book files (the reader page needs
+// this); only an admin can upload/replace/delete them.
+// ============================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    match /books/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+  }
+}

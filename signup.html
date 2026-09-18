@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sign up - Ebook Canvas</title>
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container row">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span class="brand-name">Ebook Canvas</span></a>
+    <div class="nav-links"><a href="index.html">Home</a><a href="library.html">Library</a><a href="contact.html">Premium</a></div>
+    <div class="nav-actions" id="nav-actions"></div>
+  </div>
+</nav>
+
+<div class="center-page">
+  <div class="container-narrow" style="width:100%; max-width:420px;">
+    <div class="form-card" id="form-wrap">
+      <h2>Create your account</h2>
+      <p style="margin-bottom:26px;">Free to join. Upgrade whenever you like.</p>
+
+      <button class="btn btn-ghost btn-full" id="google-btn" type="button">Continue with Google</button>
+      <div style="text-align:center; color:var(--ink-soft); font-size:.82rem; margin:18px 0;">or</div>
+
+      <form id="signup-form">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" type="text" required autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" required minlength="6" autocomplete="new-password" />
+          <div class="field-hint">At least 6 characters.</div>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Create account</button>
+      </form>
+
+      <p style="margin-top:18px; font-size:.85rem; text-align:center;">
+        Already have an account? <a href="login.html">Log in</a>
+      </p>
+    </div>
+
+    <div class="form-card" id="verify-wrap" style="display:none; text-align:center;">
+      <h2>Check your email</h2>
+      <p>We've sent a verification link to your inbox. Confirm it, then head to your library.</p>
+      <a class="btn btn-primary" href="index.html" style="margin-top:10px;">Go to library</a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { signUpWithEmail, logInWithGoogle, friendlyAuthError } from "./js/auth.js";
+  import { toast } from "./js/main.js";
+
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    try {
+      await signUpWithEmail(name, email, password);
+      document.getElementById("form-wrap").style.display = "none";
+      document.getElementById("verify-wrap").style.display = "block";
+    } catch (err) {
+      toast(friendlyAuthError(err));
+    }
+  });
+
+  document.getElementById("google-btn").addEventListener("click", async () => {
+    try {
+      await logInWithGoogle();
+      window.location.href = "index.html";
+    } catch (err) {
+      toast(friendlyAuthError(err));
+    }
+  });
+</script>
+</body>
+</html>

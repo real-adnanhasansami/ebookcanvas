@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ebook Canvas - Read like you mean it</title>
+<meta name="description" content="Upload once, read like a real book. Ebook Canvas turns any PDF into a page-turning reading experience, with an audiobook mode and a quiet place to focus." />
+<meta property="og:title" content="Ebook Canvas" />
+<meta property="og:description" content="A calmer place to read. Real page turns, audiobooks, and a focus mode for every book in the library." />
+<link rel="icon" href="data:," />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#A48FC2" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container row">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span class="brand-name">Ebook Canvas</span></a>
+    <div class="nav-links">
+      <a href="index.html" class="active"><span data-site="nav-home">Home</span></a>
+      <a href="library.html"><span data-site="nav-library">Library</span></a>
+      <a href="contact.html"><span data-site="nav-premium">Premium</span></a>
+      
+    </div>
+    <div class="nav-actions" id="nav-actions"></div>
+  </div>
+</nav>
+
+<div class="ad-slot ad-top" data-ad="top" style="display:none;"></div>
+
+<header class="hero">
+  <div class="container row">
+    <div class="hero-copy">
+      <p class="pill">A quieter way to read</p>
+      <h1 data-site="hero-title">Turn any book into<br/>a page you can feel.</h1>
+      <p data-site="hero-subtitle">Upload a PDF once - it becomes a real, page-turning book. Read at your own pace, listen along as an audiobook, or slip into focus mode and let the rest of the world wait.</p>
+      <div class="hero-actions">
+        <a href="library.html" class="btn btn-primary">Start reading</a>
+        <a href="contact.html" class="btn btn-ghost">Go Premium</a>
+      </div>
+    </div>
+    <div class="hero-stack" id="hero-stack" aria-hidden="true">
+      <div class="floating-cover c1" style="background:linear-gradient(155deg,#A48FC2,#E9C6D2);"></div>
+      <div class="floating-cover c2" style="background:linear-gradient(155deg,#C9AE7C,#F5F2F7);"></div>
+      <div class="floating-cover c3" style="background:linear-gradient(155deg,#7C689F,#A48FC2);"></div>
+    </div>
+  </div>
+</header>
+
+<div class="container" id="promo-banner-slot"></div>
+
+<section class="section container" id="continue-section" style="display:none;">
+  <div class="section-head">
+    <div>
+      <h2>Continue reading</h2>
+      <p>Pick up right where you left off.</p>
+    </div>
+  </div>
+  <div class="shelf-grid" id="continue-shelf"></div>
+</section>
+
+<div class="container">
+  <div class="ad-slot ad-home" data-ad="home"></div>
+</div>
+
+<section class="section container">
+  <div class="section-head">
+    <div>
+      <h2>The library</h2>
+      <p>A preview of what's on the shelf.</p>
+    </div>
+    <a href="library.html" class="btn btn-ghost">Browse the full library →</a>
+  </div>
+  <div class="shelf-grid" id="library-shelf">
+    <p class="field-hint">The library is empty right now - once the admin uploads a book, it'll appear here.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container row">
+    <div>© <span id="year"></span> <span class="brand-name">Ebook Canvas</span>. <span data-site="footer-tagline">A calmer way to read.</span></div>
+    <div><a href="https://adnanhasansami.vercel.app" target="_blank" rel="noopener" class="muted-link">Developed by Adnan Hasan Sami</a></div>
+    <div style="display:flex; gap:18px;">
+      <a href="legal.html">Terms &amp; Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

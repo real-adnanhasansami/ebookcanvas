@@ -98,7 +98,7 @@ service cloud.firestore {
 
     // ---------------- comment reactions (one vote per user per book) --------
     match /commentReactions/{docId} {
-      allow read, write: if signedIn() && docId.matches(`.*_${request.auth.uid}`);
+      allow read, write: if signedIn() && docId.matches('.*_' + request.auth.uid);
     }
 
     // ---------------- notes (per user, per book) ----------------

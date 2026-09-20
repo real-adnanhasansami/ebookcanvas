@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reading - Ebook Canvas</title>
+<link rel="icon" href="data:," />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#A48FC2" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="stylesheet" href="css/style.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+
+<div class="reader-shell" id="reader-shell">
+
+  <div class="focus-timer" id="focus-timer">25:00</div>
+
+  <div class="reader-top">
+    <a href="index.html" class="icon-btn" title="Back to library">←</a>
+    <div class="title" id="book-title">Loading…</div>
+    <div class="reader-tools">
+      <button class="icon-btn" id="toc-btn" title="Chapters">📑</button>
+      <button class="icon-btn" id="search-btn" title="Search in book">🔍</button>
+      <button class="icon-btn" id="zoom-out-btn" title="Zoom out">－</button>
+      <button class="icon-btn" id="zoom-in-btn" title="Zoom in">＋</button>
+      <button class="icon-btn" id="notes-btn" title="Notes">📝</button>
+      <button class="icon-btn" id="timer-btn" title="Reading timer">⏱</button>
+      <button class="icon-btn" id="fullscreen-btn" title="Fullscreen">⛶</button>
+    </div>
+  </div>
+
+  <div class="toc-panel" id="toc-panel" style="display:none;">
+    <div class="panel-head"><strong>Chapters</strong><button class="panel-close" id="toc-close">✕</button></div>
+    <div id="toc-list" class="panel-body"><p class="field-hint">Loading…</p></div>
+  </div>
+
+  <div class="search-panel" id="search-panel" style="display:none;">
+    <div class="panel-head"><strong>Search in this book</strong><button class="panel-close" id="search-close">✕</button></div>
+    <div class="panel-body">
+      <input type="text" id="search-input" placeholder="Type a word or phrase…" />
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <div class="ad-slot ad-top" data-ad="top" style="display:none;"></div>
+
+  <div class="reader-body">
+    <div class="reader-stage" id="reader-stage">
+      <div id="flipbook-wrap">
+        <p id="flipbook-status" class="field-hint">Loading your book…</p>
+        <div id="flipbook"></div>
+      </div>
+    </div>
+
+    <div class="notes-panel" id="notes-panel" style="display:none;">
+      <div class="notes-resize-handle" id="notes-resize-handle"></div>
+      <div class="notes-panel-inner">
+        <h3 style="margin-bottom:10px; font-size:1rem;">Notes</h3>
+        <textarea id="notes-textarea" placeholder="Write anything about this book… saves automatically."></textarea>
+        <div class="notes-status" id="notes-status"></div>
+        <div class="notes-actions">
+          <div class="download-group" style="position:relative;">
+            <button class="btn btn-ghost" id="notes-download-btn">Download</button>
+            <div class="download-dropdown" id="notes-download-dropdown" style="display:none; position:absolute; bottom:110%; left:0; background:var(--white); border:1px solid var(--line); border-radius:var(--r-sm); min-width:110px; box-shadow:var(--shadow-soft); z-index:10;">
+              <button class="btn btn-ghost" id="notes-download-txt" style="width:100%; border-radius:0; border:none; text-align:left;">Download .txt</button>
+              <button class="btn btn-ghost" id="notes-download-pdf" style="width:100%; border-radius:0; border:none; text-align:left;">Download .pdf</button>
+            </div>
+          </div>
+          <button class="btn btn-danger" id="notes-clear-btn">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reader-bottom" id="reader-bottom">
+    <button class="icon-btn" id="prev-btn" title="Previous page">‹</button>
+    <span id="progress-label" style="font-size:.85rem; color:var(--ink-soft);"></span>
+    <button class="icon-btn" id="next-btn" title="Next page">›</button>
+    <button class="icon-btn" id="offline-btn" title="Save for offline (Premium)" style="font-size:.7rem;">⬇</button>
+  </div>
+
+  <div class="audio-bar" id="audio-bar">
+    <button class="icon-btn" id="play-btn" title="Play as audiobook">▶</button>
+    <input type="range" id="speed" min="0.6" max="1.6" step="0.1" value="1" />
+    <span style="font-size:.78rem; color:var(--ink-soft);">Speed</span>
+  </div>
+
+  <section class="comments-section" id="comments-section">
+    <div class="container-narrow">
+      <div id="rating-section" style="margin-bottom:26px;">
+        <h3>Rate this book</h3>
+        <div class="star-rating" id="star-rating"></div>
+        <div class="rating-summary" id="rating-summary"></div>
+      </div>
+      <h3>Comments</h3>
+      <div class="field" style="margin-bottom:10px;">
+        <textarea id="comment-input" rows="2" placeholder="Share your thoughts on this book…"></textarea>
+      </div>
+      <button class="btn btn-ghost" id="comment-submit">Post comment</button>
+      <div id="comments-list" style="margin-top:20px;"></div>
+    </div>
+  </section>
+</div>
+
+<!-- Timer-end modal -->
+<div class="modal-backdrop" id="timer-modal" style="display:none;">
+  <div class="modal-card">
+    <h3>Time's up!</h3>
+    <p>Great reading session. Keep going, or head back?</p>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:16px;">
+      <button class="btn btn-ghost" id="timer-continue-btn">Continue reading</button>
+      <button class="btn btn-primary" id="timer-close-btn">Turn off & go home</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+<script type="module" src="js/reader.js"></script>
+</body>
+</html>

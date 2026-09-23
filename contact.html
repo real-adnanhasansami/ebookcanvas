@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Premium - Ebook Canvas</title>
+<link rel="icon" href="data:," />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#A48FC2" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container row">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span class="brand-name">Ebook Canvas</span></a>
+    <div class="nav-links"><a href="index.html">Home</a><a href="library.html">Library</a><a href="contact.html" class="active">Premium</a></div>
+    <div class="nav-actions" id="nav-actions"></div>
+  </div>
+</nav>
+
+<div class="ad-slot ad-top" data-ad="top" style="display:none;"></div>
+
+<section class="section container" style="max-width:720px;">
+  <p class="pill">Premium</p>
+  <h1>Read without limits.</h1>
+  <p>Premium removes every ad, unlocks premium-only books and audiobooks, and lets you keep reading offline.</p>
+
+  <div class="plan-grid">
+    <div class="form-card plan-card">
+      <h3>Trial</h3>
+      <p class="plan-price">৳30 <span>first month</span></p>
+      <p>Then ৳50/month after your trial.</p>
+    </div>
+    <div class="form-card plan-card plan-card-gold">
+      <h3>Lifetime <span class="pill pill-gold">Best value</span></h3>
+      <p class="plan-price">৳500 <span>once</span></p>
+      <p>Pay once, keep Premium for good.</p>
+    </div>
+  </div>
+
+  <div class="form-card" id="sub-form-wrap">
+    <h3>Get Premium</h3>
+    <p>Pay via bKash first, then fill this form. We'll verify and activate within 1-24 hours.</p>
+
+    <div class="form-card" style="background:var(--dusk-bg-deep); margin-bottom:18px; padding:16px;">
+      <p style="margin:0; font-size:.92rem;"><strong>bKash Number:</strong> 01319233580</p>
+      <p style="margin:6px 0 0; font-size:.85rem; color:var(--ink-soft);">Send the amount for your chosen plan, then copy the Transaction ID (TrxID) from your bKash confirmation and paste it below.</p>
+    </div>
+
+    <div class="field"><label>Your name</label><input id="sub-name" type="text" required /></div>
+    <div class="field"><label>Your email</label><input id="sub-email" type="email" required /></div>
+    <div class="field"><label>Your phone / WhatsApp</label><input id="sub-phone" type="tel" required /></div>
+    <div class="field">
+      <label>Plan you paid for</label>
+      <select id="sub-plan">
+        <option value="trial">Trial - ৳30 first month</option>
+        <option value="monthly">Monthly - ৳50/month</option>
+        <option value="lifetime">Lifetime - ৳500 once</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>bKash Transaction ID (TrxID)</label>
+      <input id="sub-trxid" type="text" placeholder="e.g. ABC1234XYZ" required />
+    </div>
+    <button class="btn btn-primary btn-full" id="sub-submit">Submit request</button>
+    <p class="field-hint" style="margin-top:10px;">Confirmed within 1-24 hours. Questions? Reach us on WhatsApp below.</p>
+  </div>
+
+  <div class="form-card" id="sub-done-wrap" style="display:none; text-align:center;">
+    <h3>Request received ✓</h3>
+    <p>We have your TrxID and will verify the payment. You'll get a message on WhatsApp/email once activated - usually within a few hours.</p>
+  </div>
+
+  <div class="form-card" id="buy-form-wrap">
+    <h3>Buy a specific book</h3>
+    <p>Only want one book instead of a full subscription? Pick it below, pay via bKash using the same number above, then submit. You need to be logged in so we know whose account to unlock.</p>
+
+    <div class="field">
+      <label>Book</label>
+      <select id="buy-book-select"><option value="">Loading books…</option></select>
+    </div>
+    <button class="btn btn-primary btn-full" id="buy-submit" disabled>Request to buy this book</button>
+    <p class="field-hint" id="buy-status" style="margin-top:10px;"></p>
+  </div>
+
+  <div class="contact-strip">
+    <p class="field-hint" style="margin-bottom:10px;">Need help or want to reach out directly?</p>
+    <div class="contact-links">
+      <a href="https://wa.me/8801319233580?text=Hi%2C%20I%20need%20help%20with%20Ebook%20Canvas" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="tel:+8801319233580">Call</a>
+      <a href="mailto:dreamcanvasagency@gmail.com?subject=Ebook%20Canvas%20Support" target="_blank" rel="noopener">Email</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container row">
+    <div>© <span id="year"></span> Ebook Canvas.</div>
+    <div><a href="https://adnanhasansami.vercel.app" target="_blank" rel="noopener" class="muted-link">Developed by Adnan Hasan Sami</a></div>
+    <div style="display:flex; gap:18px;"><a href="legal.html">Terms &amp; Privacy</a></div>
+  </div>
+</footer>
+
+<script type="module">
+  import { db } from "./js/firebase-config.js";
+  import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  import { toast, fetchPublishedBooks } from "./js/main.js";
+  import { watchAuth } from "./js/auth.js";
+
+  document.getElementById("sub-submit").addEventListener("click", async () => {
+    const name = document.getElementById("sub-name").value.trim();
+    const email = document.getElementById("sub-email").value.trim();
+    const phone = document.getElementById("sub-phone").value.trim();
+    const plan = document.getElementById("sub-plan").value;
+    const trxid = document.getElementById("sub-trxid").value.trim();
+    if (!name || !email || !phone || !trxid) return toast("Please fill in all fields including the bKash TrxID");
+
+    try {
+      await addDoc(collection(db, "subscriptionRequests"), {
+        name, email, phone, plan, trxid, status: "pending", createdAt: serverTimestamp()
+      });
+      document.getElementById("sub-form-wrap").style.display = "none";
+      document.getElementById("sub-done-wrap").style.display = "block";
+    } catch (e) {
+      toast("Couldn't send that - try WhatsApp or email below instead.");
+    }
+  });
+
+  // --- Buy a specific book -------------------------------------------
+  let currentUser = null;
+  let premiumBooks = [];
+  let booksLoaded = false;
+
+  const buySelect = document.getElementById("buy-book-select");
+  const buySubmit = document.getElementById("buy-submit");
+  const buyStatus = document.getElementById("buy-status");
+
+  function updateBuyState() {
+    if (!booksLoaded) return;
+    if (!currentUser) {
+      buySubmit.disabled = true;
+      buyStatus.innerHTML = `Please <a href="login.html">log in</a> first to request a book purchase.`;
+    } else if (premiumBooks.length === 0) {
+      buySubmit.disabled = true;
+      buyStatus.textContent = "No premium books are available to buy right now.";
+    } else {
+      buySubmit.disabled = false;
+      buyStatus.textContent = "";
+    }
+  }
+
+  async function loadPurchaseBooks() {
+    try {
+      const books = await fetchPublishedBooks();
+      premiumBooks = books.filter((b) => b.isPremiumBook);
+      buySelect.innerHTML = premiumBooks.length
+        ? premiumBooks.map((b) => `<option value="${b.id}">${b.title || "Untitled"}${b.price ? ` - ৳${b.price}` : ""}</option>`).join("")
+        : `<option value="">No premium books available right now</option>`;
+    } catch (e) {
+      buySelect.innerHTML = `<option value="">Couldn't load books - try again later</option>`;
+    }
+    booksLoaded = true;
+    updateBuyState();
+  }
+  loadPurchaseBooks();
+
+  watchAuth((user) => {
+    currentUser = user;
+    updateBuyState();
+  });
+
+  buySubmit.addEventListener("click", async () => {
+    const bookId = buySelect.value;
+    const book = premiumBooks.find((b) => b.id === bookId);
+    if (!currentUser) return toast("Please log in first.");
+    if (!book) return toast("Pick a book first.");
+    buySubmit.disabled = true; buySubmit.textContent = "Sending…";
+    try {
+      await addDoc(collection(db, "bookPurchaseRequests"), {
+        bookId, bookTitle: book.title, uid: currentUser.uid,
+        email: currentUser.email, status: "pending", createdAt: serverTimestamp()
+      });
+      buyStatus.textContent = "Request sent ✓ - we'll confirm and unlock this book once payment is verified.";
+      buySubmit.textContent = "Request sent ✓";
+    } catch (e) {
+      buySubmit.disabled = false; buySubmit.textContent = "Request to buy this book";
+      buyStatus.textContent = "Couldn't send that request - please try again in a moment.";
+    }
+  });
+</script>
+<script type="module" src="js/main.js"></script>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

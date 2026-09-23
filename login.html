@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Log in - Ebook Canvas</title>
+<link rel="icon" href="data:," />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#A48FC2" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="container row">
+    <a class="brand" href="index.html"><span class="brand-mark"></span><span class="brand-name">Ebook Canvas</span></a>
+    <div class="nav-links"><a href="index.html">Home</a><a href="library.html">Library</a><a href="contact.html">Premium</a></div>
+    <div class="nav-actions" id="nav-actions"></div>
+  </div>
+</nav>
+
+<div class="center-page">
+  <div class="container-narrow" style="width:100%; max-width:420px;">
+    <div class="form-card">
+      <h2>Welcome back</h2>
+      <p style="margin-bottom:26px;">Log in to keep reading.</p>
+
+      <button class="btn btn-ghost btn-full" id="google-btn" type="button">Continue with Google</button>
+      <div style="text-align:center; color:var(--ink-soft); font-size:.82rem; margin:18px 0;">or</div>
+
+      <form id="login-form">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" required autocomplete="current-password" />
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Log in</button>
+      </form>
+
+      <p style="margin-top:18px; font-size:.85rem; text-align:center;">
+        <a class="muted-link" href="forgot-password.html">Forgot your password?</a>
+      </p>
+      <p style="margin-top:8px; font-size:.85rem; text-align:center;">
+        New here? <a href="signup.html">Create an account</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { logInWithEmail, logInWithGoogle, friendlyAuthError } from "./js/auth.js";
+  import { toast } from "./js/main.js";
+
+  document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    try {
+      await logInWithEmail(email, password);
+      window.location.href = "index.html";
+    } catch (err) {
+      toast(friendlyAuthError(err));
+    }
+  });
+
+  document.getElementById("google-btn").addEventListener("click", async () => {
+    try {
+      await logInWithGoogle();
+      window.location.href = "index.html";
+    } catch (err) {
+      toast(friendlyAuthError(err));
+    }
+  });
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
